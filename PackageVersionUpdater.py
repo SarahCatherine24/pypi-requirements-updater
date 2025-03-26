@@ -5,11 +5,18 @@ import re
 HEADERS = {"User-Agent": "Mozilla/5.0"}
 
 def get_latest_version_and_check_compatibility(package_name):
+    package_name = package_name.replace('_', '-')
     url = f"https://pypi.org/project/{package_name}/"
     response = requests.get(url, headers=HEADERS)
     if response.status_code != 200:
         print(f"Failed to fetch data for {package_name}")
         return None, False
+    '''
+    if "Not Found" in response.text or "does not exist" in response.text:
+        print(f"Package {package_name} not found on PyPI")
+        return None, False
+
+    '''
     
     soup = BeautifulSoup(response.text, 'html.parser')
     version_tag = soup.find('h1', class_='package-header__name')
@@ -20,7 +27,9 @@ def get_latest_version_and_check_compatibility(package_name):
             latest_version = version_match.group(1)
     
     classifiers = soup.find_all('ul', class_='sidebar-section__classifiers')
-    is_python_311_compatible = any("Python :: 3.11" in classifier.text for classifier in classifiers)
+    is_python_311_compatible = any(
+        "Python :: 3.11" in classifier.text or "Python :: 3" in classifier.text 
+        for classifier in classifiers)
     
     return latest_version, is_python_311_compatible
 
@@ -50,6 +59,22 @@ def update_requirements(input_file, output_file):
     with open(output_file, 'w') as f:
         f.writelines(updated_packages)
     print(f"Updated requirements saved to {output_file}")
+
+    with open(input_file, 'r') as f1, open(output_file, 'r') as f2:
+        original_lines = f1.readlines()
+        updated_lines = f2.readlines()
+
+    unchanged_packages = [
+        orig.strip() for orig, updated in zip(original_lines, updated_lines) if orig.strip() == updated.strip()
+    ]
+
+    if unchanged_packages:
+        print("\nUnchanged Packages:")
+        for pkg in unchanged_packages:
+            if pkg.startswith("--extra-index-url") or "@" in pkg or pkg.startswith("#"):
+                continue
+            print(pkg)
+
 
 def main():
     update_requirements('requirements.txt', 'updated_requirements.txt')
