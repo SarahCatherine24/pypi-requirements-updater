@@ -27,7 +27,9 @@ def get_latest_version_and_check_compatibility(package_name):
             latest_version = version_match.group(1)
     
     classifiers = soup.find_all('ul', class_='sidebar-section__classifiers')
-    is_python_311_compatible = any("Python :: 3.11" in classifier.text for classifier in classifiers)
+    is_python_311_compatible = any(
+        "Python :: 3.11" in classifier.text or "Python :: 3" in classifier.text 
+        for classifier in classifiers)
     
     return latest_version, is_python_311_compatible
 
