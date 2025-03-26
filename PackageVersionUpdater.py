@@ -5,11 +5,18 @@ import re
 HEADERS = {"User-Agent": "Mozilla/5.0"}
 
 def get_latest_version_and_check_compatibility(package_name):
+    package_name = package_name.replace('_', '-')
     url = f"https://pypi.org/project/{package_name}/"
     response = requests.get(url, headers=HEADERS)
     if response.status_code != 200:
         print(f"Failed to fetch data for {package_name}")
         return None, False
+    '''
+    if "Not Found" in response.text or "does not exist" in response.text:
+        print(f"Package {package_name} not found on PyPI")
+        return None, False
+
+    '''
     
     soup = BeautifulSoup(response.text, 'html.parser')
     version_tag = soup.find('h1', class_='package-header__name')
