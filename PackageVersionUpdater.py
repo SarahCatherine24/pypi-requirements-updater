@@ -63,17 +63,17 @@ def update_requirements(input_file, output_file):
             updated_packages.append(package + "\n")
             inline_updates.append(package + "\n")  # Keep the original package if not found
 
-    # Approach 1: Writing to a separate updated_requirements.txt file
+    # ✅ Approach 1: Writing to a separate updated_requirements.txt file
     with open(output_file, 'w') as f:
         f.writelines(updated_packages)
     print(f"Updated requirements saved to {output_file}")
 
-    # Approach 2: Updating the same requirements.txt file inline
+    # ✅ Approach 2: Updating the same requirements.txt file inline
     with open(input_file, 'w') as f:
         f.writelines(inline_updates)
     print(f"Original {input_file} updated with inline comments for version changes.")
 
-    # Logging unchanged packages
+    # ✅ Logging unchanged packages
     with open(input_file, 'r') as f1, open(output_file, 'r') as f2:
         original_lines = f1.readlines()
         updated_lines = f2.readlines()
@@ -91,7 +91,7 @@ def update_requirements(input_file, output_file):
 
 
 def main():
-    update_requirements('requirements.txt', 'updated_requirements.txt')
+    update_requirements('requirements2.txt', 'updated_requirements2.txt')
 
 if __name__ == "__main__":
     main()
