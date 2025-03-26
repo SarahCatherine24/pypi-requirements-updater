@@ -60,6 +60,22 @@ def update_requirements(input_file, output_file):
         f.writelines(updated_packages)
     print(f"Updated requirements saved to {output_file}")
 
+    with open(input_file, 'r') as f1, open(output_file, 'r') as f2:
+        original_lines = f1.readlines()
+        updated_lines = f2.readlines()
+
+    unchanged_packages = [
+        orig.strip() for orig, updated in zip(original_lines, updated_lines) if orig.strip() == updated.strip()
+    ]
+
+    if unchanged_packages:
+        print("\nUnchanged Packages:")
+        for pkg in unchanged_packages:
+            if pkg.startswith("--extra-index-url") or "@" in pkg or pkg.startswith("#"):
+                continue
+            print(pkg)
+
+
 def main():
     update_requirements('requirements.txt', 'updated_requirements.txt')
 
